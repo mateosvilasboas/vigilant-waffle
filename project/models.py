@@ -1,7 +1,8 @@
 import enum
+
 from typing import List
 
-from sqlalchemy import Enum, ForeignKey 
+from sqlalchemy import Enum, ForeignKey, desc, text
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship, validates
 
 table_registry = registry()
@@ -19,7 +20,7 @@ class Competition:
     unit: Mapped[CompetitionUnits] = mapped_column(Enum(CompetitionUnits),
                                                    nullable=False)
     is_finished: Mapped[bool] = mapped_column(default=False)
-    results: Mapped[List["Result"]] = relationship(back_populates="competition", init=False, lazy="selectin")
+    results: Mapped[List["Result"]] = relationship(init=False, order_by=desc(text("results.value")), lazy="selectin")
 
     @validates("unit")
     def validate_unit(self, key, unit):
@@ -34,7 +35,7 @@ class Result:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str]
     value: Mapped[float]
-    unit: Mapped[str]
-    competition_id: Mapped[int] = mapped_column(ForeignKey("competitions.id"), init=False)
-    competition: Mapped["Competition"] = relationship(back_populates="results", lazy="selectin")
-
+    unit: Mapped[CompetitionUnits] = mapped_column(Enum(CompetitionUnits),
+                                                   nullable=False)
+    competition_id: Mapped[int] = mapped_column(ForeignKey("competitions.id"))
+                

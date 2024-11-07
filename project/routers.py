@@ -1,10 +1,11 @@
+from typing import List
 from fastapi import APIRouter, Depends, Response, status, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import not_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from models import Competition, Result
+from models import Competition, Athlete, Score
 
 router = APIRouter()
 
@@ -14,10 +15,11 @@ class CompetitionSchemaBase(BaseModel):
 class CreateCompetitionSchema(CompetitionSchemaBase):
    unit: str
 
-class ResultSchemaBase(BaseModel):
+class AthleteSchemaBase(BaseModel):
    competition: str
    athlete: str
    value: float
+   scores: List[float]
 
 @router.get("/get-competitions")
 async def get_competitions(response: Response, db: AsyncSession = Depends(get_db)):
@@ -54,26 +56,36 @@ async def get_ranking(response: Response, name: str, db: AsyncSession = Depends(
             detail="Not Found"
          )
 
-      results = competition[0].__dict__["results"]
+      print(competition[0].__dict__["athletes"])
+
+      athletes = competition[0].__dict__["athletes"]
+      unit = None
       ranking = []
       aux = []
 
       if competition[0].unit.name == "meters":
-         for result in results:
-            now_best = result.name
+         unit = "meters"
+         for athlete in athletes:
+            now_best = athlete.name
             if now_best not in aux:
-               ranking.append(result)
+               ranking.append({
+                  "athlete": now_best,
+                  "best_score": athlete.scores[0].value})
                aux.append(now_best)
       
       if competition[0].unit.name == "seconds":
-         for result in results[::-1]:
-            now_best = result.name
+         unit = "seconds"
+         for athlete in athletes:
+            now_best = athlete.name
             if now_best not in aux:
-               ranking.append(result)
+               ranking.append({
+                  "athlete": now_best,
+                  "best_score": athlete.scores[-1].value})
                aux.append(now_best)
  
       response.status_code = status.HTTP_200_OK
       response.body = {
+         "unit": unit,
          "ranking": ranking
       }
 
@@ -114,7 +126,6 @@ async def change_competition_status(response: Response, competition: Competition
 async def create_competition(response: Response, competition: CreateCompetitionSchema, db: AsyncSession = Depends(get_db)):
    try:   
       new_competition = Competition(name=competition.name, unit=competition.unit.lower())
-      print(new_competition)
 
       db.add(new_competition)
       await db.commit()
@@ -134,7 +145,7 @@ async def create_competition(response: Response, competition: CreateCompetitionS
       return response.body
 
 @router.post("/create-result")
-async def create_result(response: Response, result: ResultSchemaBase, db: AsyncSession = Depends(get_db)):
+async def create_result(response: Response, result: AthleteSchemaBase, db: AsyncSession = Depends(get_db)):
    try:
       obj = await db.execute(select(Competition).where(Competition.name == result.competition))
       competition = obj.scalars().all()
@@ -143,7 +154,7 @@ async def create_result(response: Response, result: ResultSchemaBase, db: AsyncS
          response.status_code = status.HTTP_404_NOT_FOUND
          raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Not Found"
+            detail="Comptetition not found"
          )
 
       if competition[0].__dict__["is_finished"]:
@@ -153,11 +164,19 @@ async def create_result(response: Response, result: ResultSchemaBase, db: AsyncS
          }
          return response.body
 
-      new_result = Result(
+      new_result = Athlete(
          name=result.athlete,
          value=result.value,
-         competition_id=competition.id
+         competition_id=competition[0].id,
       )
+
+      for score in result.scores:
+         new_score = Score(
+            value=score,
+            athlete_id=new_result.id
+         )
+         new_result.scores.append(new_score)
+
       db.add(new_result)
       await db.commit()
       await db.refresh(new_result)
@@ -168,5 +187,6 @@ async def create_result(response: Response, result: ResultSchemaBase, db: AsyncS
       }
       return response.body
    except Exception as e:
+      print(e)
       response.body = {"error": e}
       return response.body

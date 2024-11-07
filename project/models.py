@@ -35,7 +35,5 @@ class Result:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str]
     value: Mapped[float]
-    unit: Mapped[CompetitionUnits] = mapped_column(Enum(CompetitionUnits),
-                                                   nullable=False)
     competition_id: Mapped[int] = mapped_column(ForeignKey("competitions.id"))
                 

@@ -1,8 +1,6 @@
 services:
   web:
     build: .
-    env_file:
-      - .env
     command: python3 project/main.py
     volumes:
       - .:/code

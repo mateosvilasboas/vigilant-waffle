@@ -18,7 +18,6 @@ class CreateCompetitionSchema(CompetitionSchemaBase):
 class AthleteSchemaBase(BaseModel):
    competition: str
    athlete: str
-   value: float
    scores: List[float]
 
 @router.get("/get-competitions")
@@ -55,8 +54,6 @@ async def get_ranking(response: Response, name: str, db: AsyncSession = Depends(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Not Found"
          )
-
-      print(competition[0].__dict__["athletes"])
 
       athletes = competition[0].__dict__["athletes"]
       unit = None
@@ -166,7 +163,6 @@ async def create_result(response: Response, result: AthleteSchemaBase, db: Async
 
       new_result = Athlete(
          name=result.athlete,
-         value=result.value,
          competition_id=competition[0].id,
       )
 
@@ -187,6 +183,5 @@ async def create_result(response: Response, result: AthleteSchemaBase, db: Async
       }
       return response.body
    except Exception as e:
-      print(e)
       response.body = {"error": e}
       return response.body

@@ -20,7 +20,7 @@ class Competition:
     unit: Mapped[CompetitionUnits] = mapped_column(Enum(CompetitionUnits),
                                                    nullable=False)
     is_finished: Mapped[bool] = mapped_column(default=False)
-    athletes: Mapped[List["Athlete"]] = relationship(init=False, order_by=desc(text("athletes.value")), lazy="selectin")
+    athletes: Mapped[List["Athlete"]] = relationship(init=False, lazy="selectin")
 
     @validates("unit")
     def validate_unit(self, key, unit):

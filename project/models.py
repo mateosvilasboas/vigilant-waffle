@@ -19,13 +19,14 @@ class Competition:
     name: Mapped[str] = mapped_column(unique=True)
     unit: Mapped[CompetitionUnits] = mapped_column(Enum(CompetitionUnits),
                                                    nullable=False)
+    number_of_attempts: Mapped[int]
     is_finished: Mapped[bool] = mapped_column(default=False)
     athletes: Mapped[List["Athlete"]] = relationship(init=False, lazy="selectin")
 
     @validates("unit")
     def validate_unit(self, key, unit):
         if unit not in CompetitionUnits._member_names_:
-            raise ValueError("Only accepts 'meters' or 'seconds'")
+            raise ValueError("only accepts 'meters' or 'seconds'")
         return unit
 
 @table_registry.mapped_as_dataclass

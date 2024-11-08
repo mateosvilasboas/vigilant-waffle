@@ -1,3 +1,4 @@
+from operator import itemgetter
 from typing import List
 from fastapi import APIRouter, Depends, Response, status, HTTPException
 from pydantic import BaseModel
@@ -63,23 +64,25 @@ async def get_ranking(response: Response, name: str, db: AsyncSession = Depends(
       if competition[0].unit.name == "meters":
          unit = "meters"
          for athlete in athletes:
-            now_best = athlete.name
-            if now_best not in aux:
+            if athlete.id not in aux:
                ranking.append({
-                  "athlete": now_best,
+                  "id": athlete.id,
+                  "athlete": athlete.name,
                   "best_score": athlete.scores[0].value})
-               aux.append(now_best)
+               aux.append(athlete.id)
+         ranking.sort(key=itemgetter("best_score"), reverse=True)
       
       if competition[0].unit.name == "seconds":
          unit = "seconds"
          for athlete in athletes:
-            now_best = athlete.name
-            if now_best not in aux:
+            if athlete.id not in aux:
                ranking.append({
-                  "athlete": now_best,
+                  "id": athlete.id,
+                  "athlete": athlete.name,
                   "best_score": athlete.scores[-1].value})
-               aux.append(now_best)
- 
+               aux.append(athlete.id)
+         ranking.sort(key=itemgetter("best_score"))
+
       response.status_code = status.HTTP_200_OK
       response.body = {
          "unit": unit,

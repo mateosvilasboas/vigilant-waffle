@@ -1,7 +1,6 @@
-import sqlalchemy
 from operator import itemgetter
 from typing import List
-from fastapi import APIRouter, Depends, Response, status, HTTPException
+from fastapi import APIRouter, Depends, Response, status
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,7 +41,8 @@ async def get_competitions(response: Response, db: AsyncSession = Depends(get_db
       }
       return response.body
    except Exception as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(e))
+      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+      response.body = format_error(status_code=response.status_code, error=str(e))
       return response.body
 
 @router.get("/get-ranking/{name}")
@@ -92,7 +92,8 @@ async def get_ranking(response: Response, name: str, db: AsyncSession = Depends(
 
       return response.body
    except Exception as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(e))
+      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+      response.body = format_error(status_code=response.status_code, error=str(e))
       return response.body
 
 @router.put("/change-competition-status")
@@ -135,13 +136,16 @@ async def create_competition(response: Response, body: CreateCompetitionSchema, 
       }
       return response.body
    except ValueError as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(e))
+      response.status_code = status.HTTP_409_CONFLICT
+      response.body = format_error(status_code=response.status_code, error=str(e))
       return response.body
    except IntegrityError as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error="competition name must be unique")
+      response.status_code = status.HTTP_409_CONFLICT
+      response.body = format_error(status_code=response.status_code, error="competition name must be unique")
       return response.body
    except Exception as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(e))
+      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+      response.body = format_error(status_code=response.status_code, error=str(e))
       return response.body
 
 @router.post("/create-result")
@@ -189,5 +193,6 @@ async def create_result(response: Response, body: AthleteSchemaBase, db: AsyncSe
       }
       return response.body
    except Exception as e:
-      response.body = format_error(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(e))
+      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+      response.body = format_error(status_code=response.status_code, error=str(e))
       return response.body

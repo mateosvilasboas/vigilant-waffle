@@ -1,10 +1,19 @@
-# from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
 import uvicorn
-
-app = FastAPI(title="Desafio Técnico Luizalabs//Estante Virtual")
-
+from fastapi import FastAPI
+from config import settings
+from database import engine
+from models import table_registry
 from routers import router as competition_router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.create_all)
+        yield
+    await engine.dispose()
+
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 app.include_router(competition_router, prefix="/api", tags=["competition"])
 

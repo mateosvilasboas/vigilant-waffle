@@ -7,11 +7,5 @@ engine = create_async_engine(settings.DB_CONFIG, connect_args={"check_same_threa
 SessionManager = async_sessionmaker(engine)
 
 async def get_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(table_registry.metadata.create_all)
-
-    db = SessionManager()
-    try: 
+    async with SessionManager() as db: 
         yield db
-    finally:
-        await db.close()

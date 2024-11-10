@@ -2,13 +2,11 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from fastapi import status
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
 from main import app
-from models import table_registry, Competition, Athlete, Score
+from models import table_registry
 from database import get_db
-from utils import format_error
 
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite+aiosqlite:///test.db"
 

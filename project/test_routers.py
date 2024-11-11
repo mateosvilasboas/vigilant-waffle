@@ -57,6 +57,24 @@ async def test_create_competition_success(client: AsyncClient):
     response = await client.post("/api/create-competition", json=json)
     assert response.status_code == status.HTTP_201_CREATED
 
+    assert response.json()["competition"]["name"] == "corrida 100m"
+
+    json = {"name": "dardos ",
+            "unit": "seconds",
+            "number_of_attempts": 1}
+    response = await client.post("/api/create-competition", json=json)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert response.json()["competition"]["name"] == "dardos"
+
+    json = {"name": " levantamento",
+            "unit": "seconds",
+            "number_of_attempts": 1}
+    response = await client.post("/api/create-competition", json=json)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert response.json()["competition"]["name"] == "levantamento"
+
 @pytest.mark.asyncio
 async def test_create_competition_without_name(client: AsyncClient):
     json = {"name": "",
@@ -104,20 +122,30 @@ async def test_create_result_success(client: AsyncClient):
     assert response.json()["new_result"]["name"] == "mateus"
     assert response.json()["new_result"]["scores"][0]["value"] == 2.2
 
-    await client.post("/api/create-result", json={"competition": "corrida 100m",
-                                                             "athlete": "joao",
-                                                             "scores": [1.0]})
-    await client.post("/api/create-result", json={"competition": "corrida 100m",
-                                                             "athlete": "lucas",
-                                                             "scores": [4.0]})
+    json = {"competition": "corrida 100m",
+            "athlete": "joao ",
+            "scores": [1.0]}
+
+    response = await client.post("/api/create-result", json=json)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert response.json()["new_result"]["name"] == "joao"
+
+    json = {"competition": "corrida 100m",
+           "athlete": " lucas",
+           "scores": [4.0]}
     
+    response = await client.post("/api/create-result", json=json)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert response.json()["new_result"]["name"] == "lucas"
+
 @pytest.mark.asyncio
 async def test_create_result_without_athlete(client: AsyncClient):
     json = {"competition": "corrida 100m",
             "athlete": "",
             "scores": [2.2]}
     response = await client.post("/api/create-result", json=json)
-    print(response.json())
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 @pytest.mark.asyncio
@@ -148,13 +176,13 @@ async def test_change_competition_status_success(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_change_competition_status_not_found(client: AsyncClient):
-    json = {"id": 3}
+    json = {"id": 4}
     response = await client.put("/api/change-competition-status", json=json)
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 @pytest.mark.asyncio
-async def test_create_result_different_competition_is_finished(client: AsyncClient):
+async def test_create_result_competition_is_finished(client: AsyncClient):
     json = {"competition": "corrida 100m",
             "athlete": "mateus",
             "scores": [2.2]}
@@ -163,9 +191,7 @@ async def test_create_result_different_competition_is_finished(client: AsyncClie
 
 @pytest.mark.asyncio
 async def test_get_ranking_success(client: AsyncClient):
-    response = await client.get("/api/get-ranking/corrida 100m")
-    print(response.json())
-    
+    response = await client.get("/api/get-ranking/corrida 100m")    
     assert response.status_code == status.HTTP_200_OK
 
     assert response.json()["ranking"][0]["athlete"] == "joao"

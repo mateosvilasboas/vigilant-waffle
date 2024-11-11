@@ -56,20 +56,44 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
-`PUT /api/change-competition-status`: troca o status atual da competição (a competição será fechada se estiver aberta e vice versa). `name` é o nome da competição.
+`PUT /api/change-competition-status`: troca o status atual da competição (a competição será fechada se estiver aberta e vice versa). `id` é o id da competição.
 
 #### Payload
 ```json
 {
-  "name": "string"
+  "id": 1
 }
 ```
 
 #### Response
 ```json
 {
-  "competition": "dardos 100m",
-  "is_finished": true
+  "competition": {
+    "id": 1,
+    "name": "5km itapuã",
+    "unit": "meters",
+    "number_of_attempts": 2,
+    "is_finished": false,
+    "athletes": [
+      {
+        "id": 1,
+        "name": "Mateus",
+        "competition_id": 1,
+        "scores": [
+          {
+            "id": 1,
+            "value": 3,
+            "athlete_id": 1
+          },
+          {
+            "id": 2,
+            "value": 4.7,
+            "athlete_id": 1
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 

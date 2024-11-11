@@ -16,6 +16,9 @@ router = APIRouter()
 class CompetitionSchemaBase(BaseModel):
    name: str
 
+class CompetitionUpdateSchemaBase(BaseModel):
+   id: int   
+
 class CreateCompetitionSchema(CompetitionSchemaBase):
    unit: str
    number_of_attempts: int
@@ -91,9 +94,9 @@ async def get_ranking(response: Response, name: str, db: AsyncSession = Depends(
          status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.put("/change-competition-status", status_code=status.HTTP_200_OK)
-async def change_competition_status(response: Response, body: CompetitionSchemaBase, db: AsyncSession = Depends(get_db)):
+async def change_competition_status(response: Response, body: CompetitionUpdateSchemaBase, db: AsyncSession = Depends(get_db)):
    try:
-      obj = await db.execute(select(Competition).where(Competition.name==body.name.lower()))
+      obj = await db.execute(select(Competition).where(Competition.id==body.id))
       competition = obj.scalars().all()
 
       if not competition:
@@ -101,13 +104,13 @@ async def change_competition_status(response: Response, body: CompetitionSchemaB
             format_error(status_code=status.HTTP_404_NOT_FOUND, error="competition not found"),
             status_code=status.HTTP_404_NOT_FOUND)
 
-      await db.execute(update(Competition).where(Competition.name==competition[0].name.lower()).values(is_finished=not competition[0].__dict__["is_finished"]))
+      await db.execute(update(Competition).where(Competition.id==competition[0].id
+                                                 ).values(is_finished=not competition[0].__dict__["is_finished"]))
       await db.commit()
       await db.refresh(competition[0])
       
       return  {
-         "competition": competition[0].name,
-         "is_finished": competition[0].is_finished
+         "competition": competition[0],
       }
    except Exception as e:
       return JSONResponse(

@@ -137,13 +137,21 @@ async def test_create_result_different_number_of_attempts(client: AsyncClient):
     assert response.status_code == status.HTTP_409_CONFLICT
 
 @pytest.mark.asyncio
-async def test_change_competition_status(client: AsyncClient):
-    json = {"name": "corrida 100m"}
+async def test_change_competition_status_success(client: AsyncClient):
+    json = {"id": 1}
     response = await client.put("/api/change-competition-status", json=json)
-    
+
     assert response.status_code == status.HTTP_200_OK
     
-    assert response.json()["is_finished"] == True
+    assert response.json()["competition"]["id"] == 1
+    assert response.json()["competition"]["is_finished"] == True
+
+@pytest.mark.asyncio
+async def test_change_competition_status_not_found(client: AsyncClient):
+    json = {"id": 3}
+    response = await client.put("/api/change-competition-status", json=json)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 @pytest.mark.asyncio
 async def test_create_result_different_competition_is_finished(client: AsyncClient):

@@ -12,7 +12,7 @@ A API depende de `Docker versão 27.3.1` ou superior. Em um terminal:
 3. `docker compose build`
 
 ## Inicialização
-Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e acessar em um navegador `localhost:8000/docs` para usar os endpoints. O arquivo de banco de dados é gerado no uso dos endpoints.
+Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e acessar em um navegador `localhost:8000/docs` para usar os endpoints. Caso ainda não exista, o arquivo de banco de dados é gerado ao iniciar a aplicação.
 
 ## Endpoints:
 
@@ -70,9 +70,9 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 {
   "competition": {
     "id": 1,
-    "name": "5km itapuã",
-    "unit": "meters",
-    "number_of_attempts": 2,
+    "name": "corrida",
+    "unit": "seconds",
+    "number_of_attempts": 1,
     "is_finished": false,
     "athletes": [
       {
@@ -83,11 +83,6 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
           {
             "id": 1,
             "value": 3,
-            "athlete_id": 1
-          },
-          {
-            "id": 2,
-            "value": 4.7,
             "athlete_id": 1
           }
         ]

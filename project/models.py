@@ -36,7 +36,7 @@ class Athlete:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str]
     competition_id: Mapped[int] = mapped_column(ForeignKey("competitions.id"))
-    scores: Mapped[List["Score"]] = relationship(init=False, order_by=desc(text("scores.value")), lazy="selectin")
+    scores: Mapped[List["Score"]] = relationship(init=False, lazy="selectin")
 
 @table_registry.mapped_as_dataclass
 class Score:

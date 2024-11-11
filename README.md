@@ -34,7 +34,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
-`GET /api/get-ranking/{name}`: retorna o ranking da competição `{name}` (não é case-sensitive) com somente a maior pontuação do atleta, ordenado pela melhor pontuação do atleta. 
+`GET /api/get-ranking/{name}`: retorna o ranking da competição `{name}` (não é case-sensitive) com somente a melhor pontuação do atleta, ordenado pela melhor pontuação do atleta. 
 
 #### Response:
 ```json
@@ -56,7 +56,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
-`PUT /api/change-competition-status`: troca o status atual da competição (a competição será fechada se estiver aberta e vice versa).
+`PUT /api/change-competition-status`: troca o status atual da competição (a competição será fechada se estiver aberta e vice versa). `name` é o nome da competição.
 
 #### Payload
 ```json
@@ -80,7 +80,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 {
   "name": "string",
   "unit": "string",
-  "number_of_attempts": int
+  "number_of_attempts": 1
 }
 ```
 
@@ -96,7 +96,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
   }
 ```
 
-`POST /api/create-result`: cria um resultado de um atleta em uma competição. `competition` se refere ao nome da competição. `scores` é uma lista de valores em `float` e deve ser igual ao `number_of_attempts` da competição. Não é possível adicionar novos valores se a competição estiver terminada (`is_finished = true`).
+`POST /api/create-result`: cria um resultado de um atleta em uma competição. `competition` se refere ao nome da competição. `scores` é uma lista de valores `float` cujo tamanho deve ser igual ao `number_of_attempts` da competição. Não é possível adicionar novos valores se a competição estiver terminada (`is_finished = true`).
 
 #### Payload
 
@@ -105,7 +105,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
   "competition": "string",
   "athlete": "string",
   "scores": [
-    float, float, float, ...
+    1.0, 1.0, 1.0
   ]
 }
 ```

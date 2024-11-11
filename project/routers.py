@@ -116,7 +116,12 @@ async def change_competition_status(response: Response, body: CompetitionSchemaB
 
 @router.post("/create-competition", status_code=status.HTTP_201_CREATED)
 async def create_competition(response: Response, body: CreateCompetitionSchema, db: AsyncSession = Depends(get_db)):
-   try:   
+   try:
+      if not body.name:
+         return JSONResponse(
+            format_error(status_code=status.HTTP_400_BAD_REQUEST, error="competition must have a name"),
+            status_code=status.HTTP_400_BAD_REQUEST)
+
       new_competition = Competition(name=body.name.lower(), unit=body.unit.lower(), number_of_attempts=body.number_of_attempts)
 
       db.add(new_competition)
@@ -143,6 +148,7 @@ async def create_competition(response: Response, body: CreateCompetitionSchema, 
 @router.post("/create-result", status_code=status.HTTP_201_CREATED)
 async def create_result(response: Response, body: AthleteSchemaBase, db: AsyncSession = Depends(get_db)):
    try:
+
       obj = await db.execute(select(Competition).where(Competition.name == body.competition.lower()))
       competition = obj.scalars().all()
       
@@ -161,6 +167,11 @@ async def create_result(response: Response, body: AthleteSchemaBase, db: AsyncSe
             format_error(status_code=status.HTTP_409_CONFLICT, 
                          error="count of scores is different than number of attempts of competiton"),
             status_code=status.HTTP_409_CONFLICT)
+
+      if not body.athlete:
+         return JSONResponse(
+            format_error(status_code=status.HTTP_400_BAD_REQUEST, error="athlete must have a name"),
+            status_code=status.HTTP_400_BAD_REQUEST)
 
       new_result = Athlete(
          name=body.athlete,

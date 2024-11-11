@@ -58,6 +58,14 @@ async def test_create_competition_success(client: AsyncClient):
     assert response.status_code == status.HTTP_201_CREATED
 
 @pytest.mark.asyncio
+async def test_create_competition_without_name(client: AsyncClient):
+    json = {"name": "",
+            "unit": "seconds",
+            "number_of_attempts": 1}
+    response = await client.post("/api/create-competition", json=json)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+@pytest.mark.asyncio
 async def test_get_competitions_success(client: AsyncClient):
     response = await client.get("/api/get-competitions")
     assert response.status_code == status.HTTP_200_OK
@@ -102,6 +110,15 @@ async def test_create_result_success(client: AsyncClient):
     await client.post("/api/create-result", json={"competition": "corrida 100m",
                                                              "athlete": "lucas",
                                                              "scores": [4.0]})
+    
+@pytest.mark.asyncio
+async def test_create_result_without_athlete(client: AsyncClient):
+    json = {"competition": "corrida 100m",
+            "athlete": "",
+            "scores": [2.2]}
+    response = await client.post("/api/create-result", json=json)
+    print(response.json())
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 @pytest.mark.asyncio
 async def test_create_result_competition_not_found(client: AsyncClient):

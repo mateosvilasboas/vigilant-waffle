@@ -1,5 +1,5 @@
-# Desafio LuizaLabs//Estante Virual
-Desafio técnico para Estante Virtual//LuizaLabs. FastAPI, SQLAlchemy e Docker.
+# Desafio Luizalabs//Estante Virual
+Desafio técnico para Luizalabs//Estante Virtual. FastAPI, SQLAlchemy e Docker.
 
 ## Descrição da API
 A API do repositório cadastra e gerencia resultados de competições. Cada competição possui uma lista de atletas com seus respectivos resultados. A competição pode ser finalizada e a API pode retornar o ranking parcial ou final da pontuação dos atletas por competição.
@@ -15,10 +15,9 @@ A API depende de `Docker versão 27.3.1` ou superior. Em um terminal:
 Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e acessar em um navegador `localhost:8000/docs` para usar os endpoints. Caso ainda não exista, o arquivo de banco de dados é gerado ao iniciar a aplicação.
 
 ## Endpoints:
-
 `GET /api/get-competitions`: retorna um lista com todas as competições cadastradas.
 
-#### Response:
+#### Exemplo de response 201:
 ```json
 {
   "competitions": [
@@ -36,7 +35,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 
 `GET /api/get-ranking/{name}`: retorna o ranking da competição `{name}` (não é case-sensitive) com somente a melhor pontuação do atleta, ordenado pela melhor pontuação do atleta. 
 
-#### Response:
+#### Exemplo de response 200:
 ```json
 {
   "is_finished": false,
@@ -58,14 +57,14 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 
 `PUT /api/change-competition-status`: troca o status atual da competição (a competição será fechada se estiver aberta e vice versa). `id` é o id da competição.
 
-#### Payload
+#### Payload:
 ```json
 {
   "id": 1
 }
 ```
 
-#### Response
+#### Exemplo de response 200:
 ```json
 {
   "competition": {
@@ -94,7 +93,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 
 `POST /api/create-competition`: cria uma competição. O nome da competição (`name`) deve ser único e não é case-sensitive. A unidade de medida (`unit`) deve ser apenas `meters` ou `seconds`. `number_of_attempts` é a quantidade de pontuações por atleta aceita pela competição.
 
-#### Payload
+#### Payload:
 ```json
 {
   "name": "string",
@@ -103,7 +102,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
-#### Response
+#### Exemplo de response 201:
 ```json
 "competition": {
     "id": 1,
@@ -117,8 +116,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 
 `POST /api/create-result`: cria um resultado de um atleta em uma competição. `competition` se refere ao nome da competição. `scores` é uma lista de valores `float` cujo tamanho deve ser igual ao `number_of_attempts` da competição. Não é possível adicionar novos valores se a competição estiver terminada (`is_finished = true`).
 
-#### Payload
-
+#### Payload:
 ```json
 {
   "competition": "string",
@@ -129,7 +127,7 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
-#### Response
+#### Exemplo de response 201:
 ```json
 {
   "result": {
@@ -157,6 +155,9 @@ Para iniciar a aplicação, basta inserir em um terminal `docker compose up` e a
 }
 ```
 
+## Testes
+Para rodar os testes unitários da API, utilize `pytest` e insira no terminal `pytest` (utilizei o gerenciador de pacote `poetry`, logo meu rodei meus testes unitários com `poetry run pytest`)
+
 ## Devlog
 A API foi desenvolvida usando Python e fastAPI, SQLAlchemy e SQLite. A ideia inicial era usar PostgreSQL no lugar do SQLite, porém tive dificuldades para inicializar o ambiente de desenvolvimento nos primeiros dias usando o PostgreSQL. Acredito que estava me equivocando na integração do sistema com o banco de dados usando Docker. Mas, como percebi que boa parte da documentação, blogs e videos sobre a stack utilizavam SQLite, optei por essa ferramenta para poder iniciar o desenvolvimento de fato e otimizar o tempo. 
 
@@ -165,7 +166,3 @@ Após início da programação da API, a maior dificuldade foi lidar com o SQLAl
 Escolhi programar cinco endpoints na API, conforme as regras passadas. Um deles, o `get-competitions`, não necessariamente estava nas regras mas me ajudava bastante a visualizar os dados e as decisões de design que eu precisava tomar. 
 
 Para um desenvolvimento futuro seria interessante adicionar novos endpoints (como de update e deleção de competições e atletas), além de melhoramentos nos endpoints de criação atuais, como a adição de funcionalidades de bulk insert dos elementos. Vale também uma nova tentativa para integrar o PostgreSQL com a API assim como estudo e upgrade da configuração do ambiente de desenvolvimento. 
-
-## Testes
-
-Para rodar os testes unitários da API, utilize `pytest` e insira no terminal `pytest` (utilizei o gerenciador de pacote `poetry`, logo meu rodei meus testes unitários com `poetry run pytest`)
